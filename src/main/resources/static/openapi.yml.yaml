@@ -1,0 +1,139 @@
+openapi: 3.0.3
+info:
+  title: Gestión de Cuentas Bancarias
+  version: 1.0.0
+  description: API para la gestión de clientes y sus cuentas bancarias.
+servers:
+  - url: http://localhost:8080
+    description: Servidor local
+
+paths:
+  /clientes:
+    get:
+      tags:
+        - clientes
+      summary: Listar todos los clientes con sus cuentas
+      operationId: getAllClientes
+      responses:
+        '200':
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Cliente' }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /clientes/mayores-de-edad:
+    get:
+      tags:
+        - clientes
+      summary: Listar clientes mayores de edad
+      operationId: getClientesMayoresDeEdad
+      responses:
+        '200':
+          description: Lista de clientes adultos
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Cliente' }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /clientes/con-cuenta-superior-a/{cantidad}:
+    get:
+      tags:
+        - clientes
+      summary: Listar clientes cuya suma de cuentas supera cierta cantidad
+      operationId: getClientesConCuentaSuperiorA
+      parameters:
+        - name: cantidad
+          in: path
+          required: true
+          schema:
+            type: number
+            format: double
+            minimum: 0
+      responses:
+        '200':
+          description: Lista filtrada
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Cliente' }
+        '400':
+          description: Parámetro inválido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+  /clientes/{dni}:
+    get:
+      tags:
+        - clientes
+      summary: Buscar cliente por DNI
+      operationId: getClienteByDni
+      parameters:
+        - name: dni
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Cliente encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Cliente' }
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+        '404':
+          description: Cliente no encontrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ApiError' }
+
+components:
+  schemas:
+    Cliente:
+      type: object
+      required: [dni, nombre, apellido1, apellido2, fechaNacimiento]
+      properties:
+        dni:           { type: string, example: "11111111A" }
+        nombre:        { type: string, example: "Juan" }
+        apellido1:     { type: string, example: "Pérez" }
+        apellido2:     { type: string, example: "López" }
+        fechaNacimiento: { type: string, format: date, example: "1959-09-12" }
+        cuentas:
+          type: array
+          items: { $ref: '#/components/schemas/CuentaBancaria' }
+
+    CuentaBancaria:
+      type: object
+      properties:
+        id:         { type: integer, format: int64, example: 1 }
+        tipoCuenta: { type: string, example: "PREMIUM" }
+        total:      { type: number, format: double, example: 150000 }
+
+    ApiError:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "Bad Request"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-10-08T14:30:00Z"
