@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -35,35 +36,54 @@ class ClienteRestControllerTest {
 
         mvc.perform(get("/clientes").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].dni").value("11111111A"))
                 .andExpect(jsonPath("$[0].nombre").value("Juan"));
     }
 
     @Test
+    void getAll_listaVacia_200() throws Exception {
+        Mockito.when(useCases.getAll()).thenReturn(List.of());
+        mvc.perform(get("/clientes"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
     void getMayoresDeEdad_200() throws Exception {
         Mockito.when(useCases.getMayoresDeEdad()).thenReturn(List.of());
         mvc.perform(get("/clientes/mayores-de-edad"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
     void getConCuentaSuperior_200() throws Exception {
         Mockito.when(useCases.getConCuentasSuperiorA(50000)).thenReturn(List.of());
         mvc.perform(get("/clientes/con-cuenta-superior-a/50000"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
     @Test
     void getConCuentaSuperior_parametroNegativo_400() throws Exception {
         mvc.perform(get("/clientes/con-cuenta-superior-a/-1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensaje").exists())
+                .andExpect(jsonPath("$.detalles").isArray());
     }
 
     @Test
     void getConCuentaSuperior_parametroNoNumerico_400() throws Exception {
         mvc.perform(get("/clientes/con-cuenta-superior-a/abc"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensaje").value(containsString("Parámetros inválidos")))
+                .andExpect(jsonPath("$.detalles").isArray());
     }
 
     @Test
@@ -74,6 +94,7 @@ class ClienteRestControllerTest {
 
         mvc.perform(get("/clientes/11111111A"))
                 .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.dni").value("11111111A"))
                 .andExpect(jsonPath("$.nombre").value("Juan"));
     }
@@ -84,6 +105,9 @@ class ClienteRestControllerTest {
                 .thenThrow(new ClienteNotFoundException("999"));
 
         mvc.perform(get("/clientes/999"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.mensaje").value("No se ha encontrado el cliente con DNI 999"));
     }
 }

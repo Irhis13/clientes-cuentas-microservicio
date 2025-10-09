@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -30,13 +31,13 @@ class CuentaBancariaRestControllerTest {
         var cuenta = new CuentaBancaria(1L, "NORMAL", 50000.0);
         Mockito.when(useCase.create("11111111A", "NORMAL", 50000.0)).thenReturn(cuenta);
 
-        mvc.perform(post("/cuentas")
-                        .contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/cuentas").contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {"dniCliente":"11111111A","tipoCuenta":"NORMAL","total":50000}
-                        """))
+                                {"dniCliente":"11111111A","tipoCuenta":"NORMAL","total":50000}
+                                """))
                 .andExpect(status().isCreated())
-                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location", containsString("/cuentas/1")))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.tipoCuenta").value("NORMAL"))
                 .andExpect(jsonPath("$.total").value(50000.0));
@@ -44,32 +45,38 @@ class CuentaBancariaRestControllerTest {
 
     @Test
     void postCuenta_totalNegativo_400() throws Exception {
-        mvc.perform(post("/cuentas")
-                        .contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/cuentas").contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {"dniCliente":"11111111A","tipoCuenta":"NORMAL","total":-5}
-                        """))
-                .andExpect(status().isBadRequest());
+                                {"dniCliente":"11111111A","tipoCuenta":"NORMAL","total":-5}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensaje").exists())
+                .andExpect(jsonPath("$.detalles").isArray());
     }
 
     @Test
     void postCuenta_faltaCampoObligatorio_400() throws Exception {
-        mvc.perform(post("/cuentas")
-                        .contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(post("/cuentas").contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {"dniCliente":"11111111A","tipoCuenta":"","total":10}
-                        """))
-                .andExpect(status().isBadRequest());
+                                {"dniCliente":"11111111A","tipoCuenta":"","total":10}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensaje").exists())
+                .andExpect(jsonPath("$.detalles").isArray());
     }
 
     @Test
     void putCuenta_actualiza_204() throws Exception {
-        mvc.perform(put("/cuentas/10")
-                        .contentType(MediaType.APPLICATION_JSON)
+        mvc.perform(put("/cuentas/10").contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {"total":180000}
-                        """))
-                .andExpect(status().isNoContent());
+                                {"total":180000}
+                                """))
+                .andExpect(status().isNoContent())
+                .andExpect(content().string("")); // 204 sin body
 
         Mockito.verify(useCase).updateTotal(10L, 180000.0);
     }
@@ -82,9 +89,12 @@ class CuentaBancariaRestControllerTest {
         mvc.perform(put("/cuentas/99")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {"total":100}
-                        """))
-                .andExpect(status().isNotFound());
+                                {"total":100}
+                                """))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.mensaje").value("No se ha encontrado la cuenta bancaria con id 99"));
     }
 
     @Test
@@ -92,8 +102,11 @@ class CuentaBancariaRestControllerTest {
         mvc.perform(put("/cuentas/10")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                        {"total":-1}
-                        """))
-                .andExpect(status().isBadRequest());
+                                {"total":-1}
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.mensaje").exists());
     }
 }
