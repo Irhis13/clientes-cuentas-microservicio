@@ -12,7 +12,7 @@ paths:
     get:
       tags:
         - clientes
-      summary: Listar todos los clientes con sus cuentas
+      summary: Lista de todos los clientes con sus datos personales y cuentas bancarias
       operationId: getAllClientes
       responses:
         '200':
@@ -52,7 +52,7 @@ paths:
     get:
       tags:
         - clientes
-      summary: Listar clientes cuya suma de cuentas supera cierta cantidad
+      summary: Listar clientes con cuentas superiores a una cantidad
       operationId: getClientesConCuentaSuperiorA
       parameters:
         - name: cantidad
@@ -80,7 +80,7 @@ paths:
     get:
       tags:
         - clientes
-      summary: Buscar cliente por DNI
+      summary: Obtener cliente por DNI
       operationId: getClienteByDni
       parameters:
         - name: dni
@@ -108,7 +108,7 @@ paths:
     post:
       tags:
         - cuentas
-      summary: Dar de alta una nueva cuenta bancaria para un cliente (autocreando cliente si no existe)
+      summary: Dar de alta una nueva cuenta bancaria para un cliente
       operationId: createCuenta
       requestBody:
         required: true
@@ -176,8 +176,7 @@ components:
         fechaNacimiento: { type: string, format: date, example: "1959-09-12" }
         cuentas:
           type: array
-          items:
-            $ref: '#/components/schemas/CuentaBancaria'
+          items: { $ref: '#/components/schemas/CuentaBancaria' }
 
     CuentaBancaria:
       type: object
@@ -192,7 +191,7 @@ components:
       properties:
         dniCliente: { type: string, example: "11111111A" }
         tipoCuenta: { type: string, example: "NORMAL" }
-        total:      { type: number, format: double, example: 50000, minimum: 0 }
+        total: { type: number, format: double, example: 50000, minimum: 0 }
 
     UpdateCuentaBancariaRequest:
       type: object
@@ -202,25 +201,20 @@ components:
 
     ApiError:
       type: object
-      required: [errorCode, message]
+      required: [status, mensaje]
       properties:
-        errorCode:
+        status:
           type: integer
-          example: 400002
-        message:
+          example: 400
+        mensaje:
           type: string
-          example: "Petición inválida"
-        params:
+          example: "Error de validación en los datos enviados"
+        detalles:
           type: array
-          items:
-            $ref: '#/components/schemas/ApiParamErrorField'
+          items: { $ref: '#/components/schemas/ApiParamErrorField' }
 
     ApiParamErrorField:
       type: object
       properties:
-        field:
-          type: string
-          example: "dniCliente"
-        message:
-          type: string
-          example: "El campo no puede estar vacío"
+        field: { type: string, example: "total" }
+        message: { type: string, example: "debe ser mayor o igual a 0" }

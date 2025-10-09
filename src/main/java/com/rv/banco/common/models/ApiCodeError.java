@@ -6,8 +6,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ApiCodeError(
-        Integer errorCode,
-        String message,
-        List<ApiParamErrorField> params
-) {
-}
+        int status,
+        String mensaje,
+        List<ApiParamErrorField> detalles
+) {}
