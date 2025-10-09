@@ -26,16 +26,16 @@ public class ClienteJpaEntity {
     @Column(name = DNI_COL, nullable = false, length = 12)
     private String dni;
 
-    @Column(name = NOMBRE_COL, nullable = false)
+    @Column(name = NOMBRE_COL)
     private String nombre;
 
-    @Column(name = APELLIDO1_COL, nullable = false)
+    @Column(name = APELLIDO1_COL)
     private String apellido1;
 
-    @Column(name = APELLIDO2_COL, nullable = false)
+    @Column(name = APELLIDO2_COL)
     private String apellido2;
 
-    @Column(name = FECHA_NACIMIENTO_COL, nullable = false)
+    @Column(name = FECHA_NACIMIENTO_COL)
     private LocalDate fechaNacimiento;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)

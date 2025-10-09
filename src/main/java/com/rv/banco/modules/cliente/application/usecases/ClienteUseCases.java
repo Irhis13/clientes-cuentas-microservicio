@@ -1,30 +1,16 @@
 package com.rv.banco.modules.cliente.application.usecases;
 
-import com.rv.banco.modules.cliente.application.repository.ClienteRepository;
 import com.rv.banco.modules.cliente.domain.model.Cliente;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
-@Service
-public class ClienteUseCases {
+public interface ClienteUseCases {
 
-    private final ClienteRepository repo;
+    List<Cliente> getAll();
 
-    public ClienteUseCases(ClienteRepository repo) { this.repo = repo; }
+    List<Cliente> getMayoresDeEdad();
 
-    public List<Cliente> getAll() { return repo.findAll(); }
+    List<Cliente> getConCuentasSuperiorA(double cantidad);
 
-    public List<Cliente> getMayoresDeEdad() {
-        return repo.findByFechaNacimientoBefore(LocalDate.now().minusYears(18));
-    }
-
-    public List<Cliente> getConSumaCuentasSuperiorA(double cantidad) {
-        return repo.findClientesConSumaCuentasMayorQue(cantidad);
-    }
-
-    public Cliente getByDni(String dni) {
-        return repo.findByDni(dni).orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
-    }
+    Cliente getCliente(String dni);
 }

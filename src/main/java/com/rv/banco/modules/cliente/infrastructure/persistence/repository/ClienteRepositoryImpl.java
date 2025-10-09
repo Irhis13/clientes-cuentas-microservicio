@@ -3,7 +3,6 @@ package com.rv.banco.modules.cliente.infrastructure.persistence.repository;
 import com.rv.banco.modules.cliente.application.repository.ClienteRepository;
 import com.rv.banco.modules.cliente.domain.model.Cliente;
 import com.rv.banco.modules.cliente.infrastructure.persistence.mapper.ClienteJpaMapper;
-import com.rv.banco.modules.cliente.infrastructure.persistence.repository.jpa.ClienteJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

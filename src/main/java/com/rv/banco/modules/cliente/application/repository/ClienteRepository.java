@@ -8,13 +8,10 @@ import java.util.Optional;
 
 public interface ClienteRepository {
 
-    // Lista de todos los clientes
     List<Cliente> findAll();
 
-    // Clientes mayores de 18 anyos
     List<Cliente> findByFechaNacimientoBefore(LocalDate maxBirthDate);
 
-    // Clientes con cuentas que superen cierta cantidad
     List<Cliente> findClientesConSumaCuentasMayorQue(double cantidad);
 
     Optional<Cliente> findByDni(String dni);

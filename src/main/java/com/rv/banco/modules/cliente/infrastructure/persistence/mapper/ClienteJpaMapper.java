@@ -29,7 +29,6 @@ public final class ClienteJpaMapper {
         e.setApellido1(d.getApellido1());
         e.setApellido2(d.getApellido2());
         e.setFechaNacimiento(d.getFechaNacimiento());
-        // las cuentas se gestionan en el adaptador de cuentas, no aquí
         return e;
     }
 }

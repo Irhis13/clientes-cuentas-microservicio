@@ -1,4 +1,4 @@
-package com.rv.banco.modules.cliente.infrastructure.persistence.repository.jpa;
+package com.rv.banco.modules.cliente.infrastructure.persistence.repository;
 
 import com.rv.banco.modules.cliente.infrastructure.persistence.entity.ClienteJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -60,7 +60,7 @@ public class ClienteRestController {
     public ResponseEntity<List<ClienteRestResponse>> getConSumaCuentasSuperiorA(
             @PathVariable @PositiveOrZero double cantidad
     ) {
-        var body = clienteUseCases.getConSumaCuentasSuperiorA(cantidad).stream().map(ClienteRestMapper::toResponse).toList();
+        var body = clienteUseCases.getConCuentasSuperiorA(cantidad).stream().map(ClienteRestMapper::toResponse).toList();
         return ResponseEntity.ok(body);
     }
 
@@ -69,7 +69,7 @@ public class ClienteRestController {
     @ApiResponse(responseCode = "200", description = CLIENTE_ENCONTRADO)
     @ApiResponse(responseCode = "404", description = CLIENTE_NO_ENCONTRADO)
     public ResponseEntity<ClienteRestResponse> getByDni(@PathVariable String dni) {
-        var cliente = clienteUseCases.getByDni(dni);
+        var cliente = clienteUseCases.getCliente(dni);
         return ResponseEntity.ok(ClienteRestMapper.toResponse(cliente));
     }
 }
